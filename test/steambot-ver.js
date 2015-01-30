@@ -1,5 +1,4 @@
 // This is the exact code that I use for my bot ( http://steamcommunity.com/id/botlain/ ) on Steam...
-
 var imgurg = exports;
 var request = require('request');
 var random = require("random-js")();
@@ -11,7 +10,7 @@ var images;
 
 // imgurg.cid = "";
 imgurg.out = "";
-imgurg.query = function(query){
+imgurg.query = function(query, callback){
 	var query = { c: String(query) }
 	var subcat = (query.c).match(/(?:^r\/)(.*)/);
 	query.e = subcat && encodeURIComponent((query.c).substring(2,(query.c).length)) || encodeURIComponent(query.c);
@@ -34,17 +33,24 @@ imgurg.query = function(query){
 	}
 
 	function tError(stat, err, body){
-		if( body === undefined ){ body={data:""} }
+		if( body === undefined ){ body={data:"",status:"???"} }
 		if( body.data === undefined || body.data == "" ){ body.data = "No data recived" }
+		err = String(err || "Unknown Error");
 
 		var errz = ""
-		errz += "\nSTATUS CODE: "+String(stat || "000")+"\n----------------";
-		errz += "  ERROR: "+String(err || "No Error Specified")+"\n";
+		errz += "\nSTATUS CODE: "+String(stat || "000")+"\n----------------\n";
+		errz += "  ERROR: "+err+"\n";
 		errz += "  RESPONSE: "+String(body.status)+"\n";
 		errz += "  DATA RECIVED: "+String(body.data)+"\n\n";
 
-		if (errz) { console.log(errz) };
-		imgurg.out = {say:"Woops seems that seems like an error..."};
+		if (errz && stat != 200 ) { console.log(errz) };
+
+		if ( stat == 200 && body.status == 200 ){
+			// console.log("Probably no results where found."); // Don't worry everything is fine.
+			imgurg.out = {say:"Sorry I could not find anything. ;~;"}; 
+		}else{ imgurg.out = {say:"I tried to find an image but I got an error. ("+err+")"}; }
+
+		callback("f", imgurg.out);
 		return false
 	}
 
@@ -77,10 +83,17 @@ imgurg.query = function(query){
 
 				img.url = String(img.table.link || "undefined");
 
-				img.say = img.nsfw && img.url+" (NSFW)" || img.url;
-				
+				img.say = img.nsfw && img.url+" (NSFW)" || img.url;				
 				imgurg.out = img;
-				return imgurg.out;
+
+				if ( img.say != "undefined" && img.say != "undefined (NSFW)" ){
+					callback("s", imgurg.out);
+				}else{
+					imgurg.out.say = "Sorry I could not find anything. ;~;";
+					callback("u", imgurg.out);
+				}
+
+				return true;
 
 			}else{ return tError(res.statusCode, err, body); }
 	});
