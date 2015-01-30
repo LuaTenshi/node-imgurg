@@ -1,0 +1,16 @@
+{
+  "author": "LuaTenshi <luatenshi@gmail.com> (www.twisted.cat)",
+  "name": "imgur",
+  "description": "Search for images on imgur.com",
+  "version": "0.0.0",
+  "homepage": "https://github.com/LuaTenshi/node-imgurg",
+  "keywords": [
+    "imgur",
+    "search",
+    "images"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/LuaTenshi/node-imgurg.git"
+  }
+}
